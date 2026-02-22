@@ -18,6 +18,7 @@ public class Station {
 
     private String stationName;
 
+    @Column(unique = true)
     private String stationCode;
 
     private String city;

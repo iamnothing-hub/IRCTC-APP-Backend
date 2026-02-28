@@ -4,9 +4,12 @@ import com.irctc.dto.StationDto;
 import com.irctc.response.GenericResponse;
 import com.irctc.service.StationService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/station")
@@ -39,12 +42,51 @@ public class StationController {
     }
 
     // Find By Station Name and Code by Search
+    @GetMapping("/search")
+    public ResponseEntity<GenericResponse<Object>> searchStation(@RequestParam String keyword){
+        List<StationDto> stationDtos = stationService.searchStation(keyword);
+        return ResponseEntity.ok().body(
+                GenericResponse.builder()
+                        .success(true)
+                        .message("Train fetched successfully.")
+                        .data(stationDtos)
+                        .build()
+        );
+    }
 
 
     // Get all stations and use pagination and search criteria
-
+    @GetMapping
+    public ResponseEntity<GenericResponse<Object>> getAllStation(
+            @RequestParam(defaultValue = "0") Integer pageNumber,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "stationName") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir
+    ){
+        Page<StationDto> stationDtos = stationService.getAllStations(pageNumber, pageSize, sortBy, sortDir);
+        return ResponseEntity.ok().body(
+                GenericResponse.builder()
+                        .success(true)
+                        .message("All Trains fetched successfully.")
+                        .data(stationDtos)
+                        .build()
+        );
+    }
 
     // Update Station
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<GenericResponse<Object>> updateStation(@RequestBody StationDto stationDto, @PathVariable Long id){
+        String s = stationService.updateStation(stationDto, id);
+        return ResponseEntity.ok().body(
+                GenericResponse.builder()
+                        .success(true)
+                        .message(s)
+                        .data(null)
+                        .build()
+        );
+    }
+
 
     // Delete Station
 }

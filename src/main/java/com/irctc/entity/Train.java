@@ -1,6 +1,7 @@
 package com.irctc.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -18,11 +19,15 @@ public class Train {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Train Number should not be empty.")
     private String trainNo;
 
+    @NotNull(message = "Train Name should not be empty.")
     private String trainName;
 
     private Integer totalDistance;
+
+    private Boolean active = true;
 
     @ManyToOne          //? Many Trains can have same source station.
     @JoinColumn(name = "source_station_id")
@@ -36,45 +41,11 @@ public class Train {
     @OneToMany(mappedBy = "train")
     private List<TrainRoute> trainRoutes;  //! Stoppage
 
-    @OneToMany(mappedBy = "train")
-    private List<TrainSchedule>  trainSchedules;
+//    @OneToMany(mappedBy = "train")
+//    private List<TrainSchedule>  trainSchedules;
 
 //    @OneToOne
 //    private TrainImage trainImage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

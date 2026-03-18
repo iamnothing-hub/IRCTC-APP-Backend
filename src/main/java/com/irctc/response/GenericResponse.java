@@ -15,8 +15,8 @@ public class GenericResponse<T> {
     private Boolean success;
     private String message;
     private T data;
-    private ErrorResponse errorResponse;
-    private T error;
+//    private ErrorResponse errorResponse;
+//    private T error;
 
 
 //    Success Response
@@ -42,7 +42,7 @@ public class GenericResponse<T> {
         return GenericResponse.<T>builder()
                 .success(false)
                 .data(null)
-                .errorResponse((new ErrorResponse(errorCode)))
+//                .errorResponse((new ErrorResponse(errorCode)))
                 .build();
     }
 }

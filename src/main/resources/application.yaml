@@ -14,7 +14,45 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+# Oracle Connection Settings
+#  spring.datasource.url=jdbc:oracle:thin:@localhost:1521:xe
+#  spring.datasource.username=your_username
+#  spring.datasource.password=your_password
+#  spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
+
+  # Optional: JPA/Hibernate Settings for Oracle
+#  spring.jpa.database-platform=org.hibernate.dialect.Oracle12cDialect
+#  spring.jpa.hibernate.ddl-auto=update
+#  spring.jpa.show-sql=true
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+
+#********************************************************************************************
+#* LOGGER CONFIGURATION
+logging:
+  # 1. LOG LEVELS: Defines how much detail to show
+  level:
+    root: INFO        # Default for all libraries (Spring, Hibernate, etc.)
+    com:
+      irctc: DEBUG    # Detailed logs for YOUR code only (shows your log.debug() statements)
+
+  # 2. LOG STORAGE: Where the logs are saved
+  file:
+    name: logs/app.log # Creates a 'logs' folder and saves logs in 'app.log'
+
+  # 3. LOG APPEARANCE: How each line is formatted
+  pattern:
+    #? IMPORTANT: The % character requires "double quotes" in YAML
+    #? %d{yyyy-MM-dd HH:mm:ss}: The Date and Time the log was created.
+    #? [%X{correlationID}]: This pulls the Unique ID from the MDC you created in your Filter.
+    #? [%p]: The Priority/Level (e.g., INFO, DEBUG, ERROR).
+    #? %c{1}: The Category/Class name. The {1} keeps it short (e.g., StationServiceImpl instead of the full package path).
+    #? %msg: The actual Message you wrote in your code (e.g., "Station created").
+    #? %n: A New Line so the next log starts on a fresh row.
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationID}] [%p] %c{1} - %msg%n"
+
+# Now Create logback-spring.xml file in resource path for Daily LOG rotation and old logs auto deleted (we have given 7 days)
+#********************************************************************************************

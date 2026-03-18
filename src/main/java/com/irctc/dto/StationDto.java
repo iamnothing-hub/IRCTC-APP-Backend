@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class StationDto {
-    private Long id;
+    private Long stationId;
 
     @NotNull(message = "{STATION_NAME_CAN_NOT_BE_NULL}")
     private String stationName;

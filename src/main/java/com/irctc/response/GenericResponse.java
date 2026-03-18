@@ -28,6 +28,15 @@ public class GenericResponse<T> {
                 .build();
     }
 
+//    Success Response
+    public static <T> GenericResponse<T> success(String message){
+        return GenericResponse.<T>builder()
+                .success(true)
+                .message(message)
+                .data(null)
+                .build();
+    }
+
 //    Error Response
     public static <T> GenericResponse<T> error(String message, T data, String errorCode){
         return GenericResponse.<T>builder()

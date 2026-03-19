@@ -35,22 +35,37 @@ public class TrainServiceImpl implements TrainService {
 
     @Override
     public String createTrain(TrainDto trainDto) {
+        log.info("Attempting to create a new train with Train No: {}", trainDto.getTrainNo());
+
         Train alreadyExistTrain = trainRepository.findByTrainNo(trainDto.getTrainNo());
-        if(alreadyExistTrain !=null) throw new DuplicateFieldException("Train is already present with " + trainDto.getTrainNo());
-        Train train = trainRepository.save(mapper.map(trainDto, Train.class));
-        log.info("Train is created successfully with trainNo is: ", train.getTrainNo());
-//        if(train.equals(null)) throw new DuplicateFieldException("Train is already present");
-        return "Train added successfully" ;
+        if (alreadyExistTrain != null) {
+            log.warn("Create Train failed: Train No {} already exists in the database", trainDto.getTrainNo());
+            throw new DuplicateFieldException("Train is already present with " + trainDto.getTrainNo());
+        }
+        Train savedTrain = trainRepository.save(mapper.map(trainDto, Train.class));
+        log.info("Train created successfully: [Train No: {}, Name: {}]", savedTrain.getTrainNo(), savedTrain.getTrainName());
+        return "Train added successfully";
     }
 
     @Override
     public List<TrainDto> getTrainByNameOrNumber(String keyword) {
+        log.info("Searching for trains with keyword: '{}'", keyword);
         List<Train> trains = trainRepository.findByTrainNoOrTrainName(keyword);
-        trains = trains.stream().filter(train -> train.getActive() == true).toList();
-        if(trains.size()==0) throw new ResourceNotFoundException("Train not found with given keyword: "+ keyword);
-
-        List<TrainDto> trainDtos = trains.stream().map(train -> mapper.map(train, TrainDto.class)).toList();
-        return trainDtos;
+        // Filter active trains
+        List<Train> activeTrains = trains.stream()
+                .filter(train -> Boolean.TRUE.equals(train.getActive()))
+                .toList();
+        if (activeTrains.isEmpty()) {
+            // Negative scenario: Either no match at all, or matching trains are inactive
+            log.warn("Search failed: No active trains found for keyword '{}' (Total matches: {})",
+                    keyword, trains.size());
+            throw new ResourceNotFoundException("Train not found with given keyword: " + keyword);
+        }
+        // Positive scenario
+        log.info("Successfully found {} active train(s) for keyword: '{}'", activeTrains.size(), keyword);
+        return activeTrains.stream()
+                .map(train -> mapper.map(train, TrainDto.class))
+                .toList();
     }
 
     @Override
@@ -58,7 +73,7 @@ public class TrainServiceImpl implements TrainService {
         Train train = trainRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Train not found with given ID: " + id));
         train.setActive(false);
         Train deletedTrain = trainRepository.save(train);
-        log.info("Train is deleted successfully, Train Number is: ", train.getTrainNo());
+        log.info("Train is deleted successfully, Train Number is: {}", train.getTrainNo());
         return "Train has been deleted successfully.";
     }
 

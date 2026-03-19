@@ -38,9 +38,12 @@ public class StationServiceImpl implements StationService {
     public StationDto createStation(StationDto stationDto) {
 //        System.out.println(stationDto.toString());
         Station stationByStationCode = stationRepository.findByStationCode(stationDto.getStationCode());
-        if(stationByStationCode!=null) throw  new DuplicateFieldException("This station is already exist for " + stationDto.getStationCode() + " code");
+        if(stationByStationCode!=null) {
+            log.error("Failed to create station: Station code {} already exists", stationDto.getStationCode());
+            throw new DuplicateFieldException("This station is already exist for " + stationDto.getStationCode() + " code");
+        }
         Station station = stationRepository.save(modelMapper.map(stationDto, Station.class));
-        log.info("Station is created successfully with name: {}", station.getStationName());
+        log.info("Station created successfully: [Name: {}, Code: {}]", station.getStationName(), station.getStationCode());
         return modelMapper.map(station, StationDto.class);
     }
 
@@ -53,7 +56,12 @@ public class StationServiceImpl implements StationService {
      */
     @Override
     public StationDto findStation(Long id) {
-        Station station = stationRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Station is not found."));
+        Station station = stationRepository.findById(id).orElseThrow(() -> {
+            log.warn("Station lookup failed: ID {} not found", id);
+            return new ResourceNotFoundException("Station is not found.");
+        });
+
+        log.info("Station retrieved successfully for ID: {}", id);
         return modelMapper.map(station, StationDto.class);
     }
 
@@ -65,9 +73,19 @@ public class StationServiceImpl implements StationService {
      */
     @Override
     public List<StationDto> searchStation(String keyword) {
+        log.info("Searching for stations with keyword: '{}'", keyword);
+
         List<Station> stationList = stationRepository.searchStations(keyword);
-        List<StationDto> stationDtoList = stationList.stream().map(station -> modelMapper.map(station, StationDto.class)).toList();
-        return stationDtoList;
+
+        if (stationList.isEmpty()) {
+            log.warn("No stations found matching keyword: '{}'", keyword);
+        } else {
+            log.info("Found {} stations for keyword: '{}'", stationList.size(), keyword);
+        }
+
+        return stationList.stream()
+                .map(station -> modelMapper.map(station, StationDto.class))
+                .toList();
     }
 
     /**
@@ -81,17 +99,19 @@ public class StationServiceImpl implements StationService {
      */
     @Override
     public Page<StationDto> getAllStations(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+        log.info("Fetching stations - Page: {}, Size: {}, SortBy: {}, Direction: {}", pageNumber, pageSize, sortBy, sortDir);
 
         Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
-
         Page<Station> stations = stationRepository.findAll(pageRequest);
 
-        Page<StationDto> stationDtos = stations.map(station ->
-            modelMapper.map(station, StationDto.class)
-        );
-        return stationDtos;
+        if (stations.isEmpty()) {
+            log.warn("No stations found for the requested page: {}", pageNumber);
+        } else {
+            log.info("Successfully retrieved {} stations (Total Elements: {}, Total Pages: {})",
+                    stations.getNumberOfElements(), stations.getTotalElements(), stations.getTotalPages());
+        }
+        return stations.map(station -> modelMapper.map(station, StationDto.class));
     }
 
     /**
@@ -104,18 +124,28 @@ public class StationServiceImpl implements StationService {
      */
     @Override
     public String updateStation(StationDto stationDto, Long id) {
-        Station station = stationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Station is not found for this Id: " + id));
+        log.info("Attempting to update station with ID: {}", id);
+
+        // Negative scenario: Station not found
+        Station station = stationRepository.findById(id).orElseThrow(() -> {
+            log.error("Update failed: Station with ID {} not found", id);
+            return new ResourceNotFoundException("Station is not found for this Id: " + id);
+        });
+
         station.setStationName(stationDto.getStationName());
         station.setStationCode(stationDto.getStationCode());
         station.setCity(stationDto.getCity());
         station.setState(stationDto.getState());
 
-        Station station1 = stationRepository.save(station);
-        if(station1 == null){
-            log.error("Station updation is failed");
+        try {
+            Station updatedStation = stationRepository.save(station);
+            // Positive scenario
+            log.info("Station updated successfully: [ID: {}, Name: {}]", id, updatedStation.getStationName());
+            return "Station has been updated.";
+        } catch (Exception e) {
+            // Negative scenario: Database/Persistence failure
+            log.error("Update failed for Station ID {}: {}", id, e.getMessage());
             return "Station is not updated.";
         }
-        log.info("Station is updated successfully: {}", station1.getStationName());
-        return "Station has been updated.";
     }
 }

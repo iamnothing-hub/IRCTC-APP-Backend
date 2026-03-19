@@ -2,6 +2,7 @@ package com.irctc.exception;
 
 import com.irctc.response.ErrorResponse;
 import com.irctc.response.GenericResponse;
+import lombok.ToString;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestControllerAdvice
+@ToString
 public class GlobalException {
 
 
@@ -36,10 +38,11 @@ public class GlobalException {
                 .body(
                         GenericResponse.builder()
                                 .success(false)
-                                .message("Validation Failed")
+//                                .message("Validation Failed")
 //                                .errorResponse(new ErrorResponse("Validation Error"))
                                 .data(null)
-                                .error(errorResponse)
+                                .message(errorResponse.toString())
+//                                .error(errorResponse)
                                 .build()
                 );
     }

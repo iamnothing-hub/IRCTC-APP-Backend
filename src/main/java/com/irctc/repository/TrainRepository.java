@@ -21,7 +21,8 @@ public interface TrainRepository extends JpaRepository<Train, Long> {
     @Query("""
                 SELECT t FROM Train t
                 WHERE t.sourceStation.id = :sourceStationId\s
-                AND t.destinationStation.id = :destinationStationId
+                AND t.destinationStation.id = :destinationStationId\s
+                AND t.active = true
             """)
     List<Train> findBySourceStationIdAndDestinationStationId( @Param("sourceStationId") Long sourceStationId, @Param("destinationStationId") Long destinationStationId);
 

@@ -1,6 +1,7 @@
 package com.irctc.service;
 
 import com.irctc.dto.TrainDto;
+import com.irctc.dto.TrainWithStationsProjection;
 import com.irctc.response.GenericResponse;
 import org.springframework.data.domain.Page;
 
@@ -10,13 +11,13 @@ public interface TrainService {
 
     String createTrain(TrainDto trainDto);
 
-    List<TrainDto> getTrainByNameOrNumber(String keyword);
+    List<TrainWithStationsProjection> getTrainByNameOrNumber(String keyword);
 
     String removeTrain(Long id);
 
     String updateTrain(TrainDto trainDto, Long id);
 
-    List<TrainDto> findTrainBetweenTwoStation(Long sourceStationId, Long destinationStationId);
+    List<TrainWithStationsProjection> findTrainBetweenTwoStation(Long sourceStationId, Long destinationStationId);
 
 
 

@@ -2,6 +2,7 @@ package com.irctc.controller.admin;
 
 
 import com.irctc.dto.TrainDto;
+import com.irctc.dto.TrainWithStationsProjection;
 import com.irctc.response.GenericResponse;
 import com.irctc.service.TrainService;
 import lombok.AllArgsConstructor;
@@ -40,7 +41,7 @@ public class AdminTrainController {
 
     @GetMapping("/search")
     public ResponseEntity<GenericResponse<Object>> searchTrain(@RequestParam String keyword){
-        List<TrainDto> train = trainService.getTrainByNameOrNumber(keyword);
+        List<TrainWithStationsProjection> train = trainService.getTrainByNameOrNumber(keyword);
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
                         .success(true)
@@ -68,7 +69,7 @@ public class AdminTrainController {
 
     @GetMapping("/search/{sourceId}/{destId}")
     public ResponseEntity<GenericResponse<Object>> findTrainBetweenTwoStations(@PathVariable Long sourceId, @PathVariable Long destId ){
-        List<TrainDto> trains = trainService.findTrainBetweenTwoStation(sourceId, destId);
+        List<TrainWithStationsProjection> trains = trainService.findTrainBetweenTwoStation(sourceId, destId);
         return ResponseEntity.ok().body(
                 GenericResponse.builder()
                         .success(true)

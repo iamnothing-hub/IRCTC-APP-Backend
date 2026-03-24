@@ -19,10 +19,9 @@ public class TrainDto {
 
     private Integer totalDistance;
 
-    private StationDto sourceStation;
+    private Long sourceStationId;
 
-
-    private StationDto destinationStation;
+    private Long destinationStationId;
 
     //    private String routeName;
 

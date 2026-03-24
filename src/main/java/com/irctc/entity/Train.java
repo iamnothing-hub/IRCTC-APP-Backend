@@ -38,8 +38,8 @@ public class Train {
     private Station destinationStation;
 
 //    private String routeName;
-    @OneToMany(mappedBy = "train")
-    private List<TrainRoute> trainRoutes;  //! Stoppage
+//    @OneToMany(mappedBy = "train")
+//    private List<TrainRoute> trainRoutes;  //! Stoppage
 
 //    @OneToMany(mappedBy = "train")
 //    private List<TrainSchedule>  trainSchedules;
